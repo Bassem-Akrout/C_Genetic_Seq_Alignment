@@ -14,10 +14,12 @@
 #include "Needleman-Wunsch-recmemo.h"
 #include <stdio.h>  
 #include <stdlib.h> 
+#include <stdint.h>
 #include <string.h> /* for strchr */
 // #include <ctype.h> /* for toupper */
 
 #include "characters_to_base.h" /* mapping from char to base */
+#include "DequeNode.h" /* double-ended queue struct*/
 
 /*****************************************************************************/
    
@@ -135,5 +137,61 @@ long EditDistance_NW_Rec(char* A, size_t lengthA, char* B, size_t lengthB)
       free( ctx.memo ) ;
    }
    return res ;
+}
+long iteratif(char* A, size_t lengthA, char* B, size_t lengthB) {
+
+   _init_base_match() ;
+   struct NW_MemoContext ctx;
+   if (lengthA >= lengthB) /* X is the longest sequence, Y the shortest */
+   {  ctx.X = A ;
+      ctx.M = lengthA ;
+      ctx.Y = B ;
+      ctx.N = lengthB ;
+   }
+   else
+   {  ctx.X = B ;
+      ctx.M = lengthB ;
+      ctx.Y = A ;
+      ctx.N = lengthA ;
+   }
+   size_t M = ctx.M ;
+   size_t N = ctx.N ;
+
+   Deque *deque = createDeque(); // Crée une nouvelle deque vide
+
+   // Initialisation de la derniere ligne de Ø avec les valeurs appropriées
+   pushBack(deque, (char)0);
+   for (uint64_t j = N-1; j >= 0; j--) {
+   char Yj = ctx.Y[j] ;
+   pushBack(deque, (isBase(Yj) ? INSERTION_COST : 0) + deque->front->value);
+   }
+   //remplissage de Ø en ne gardant en mémoire que la derniere ligne 
+   for (uint64_t i = M - 1; i >= 0; i--) {
+      char Xi = ctx.X[i] ;
+      pushBack(deque, (isBase(Xi) ? INSERTION_COST : 0) + deque->rear->value);
+         for (uint64_t j = N-1; j >= 0; j--) {
+            char Xi = ctx.X[i] ;
+            char Yj = ctx.Y[j] ;
+
+            long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
+                     : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
+               ) + deque->front->value ;                             //i+1, j+1
+            long cas2 = INSERTION_COST + deque->front->next->value ; //i+1, j
+            if (cas2 < min) min = cas2 ;
+            long cas3 = INSERTION_COST + deque->rear->value ;        //i  , j+1
+            if (cas3 < min) min = cas3 ; 
+            pushBack(deque, min);
+            popFront(deque);
+         }
+      popFront(deque);
+   }
+   long res=deque->rear->value ;
+   // Libération de la mémoire de la deque
+   while (deque->front != NULL) {
+      popFront(deque); // Retire les éléments restants de la deque et libère leur mémoire
+   }
+   free(deque); // Libère la mémoire de la structure de la deque
+
+   return res;
 }
 
