@@ -28,6 +28,24 @@
  */
 #define INSERTION_COST		2
 
+
+#define CACHE_SIZE (int64_t) 12582912
+#define CACHE_ALIGNEMENT (int64_t) 64
+#define K  (int64_t) 2 //sqrt(12582912)
+
+// Définition of the structure for a deque node
+typedef struct queueNode {
+    long value;
+    struct queueNode *prev;
+    struct queueNode *next;
+} queueNode;
+
+// Définition of the structure for the deque
+typedef struct queue {
+    queueNode *front;
+    queueNode *rear;
+} queue;
+
 /********************************************************************************
  * Recursive implementation of NeedlemanWunsch with memoization
  */
@@ -49,3 +67,33 @@
  */
 long EditDistance_NW_Rec(char* A, size_t lengthA, char* B, size_t lengthB);
 
+long iteratif(char* A, size_t lengthA, char* B, size_t lengthB);
+
+// Function to create a new empty deque
+queue* createFile();
+
+// Function to add an element to the rear end of the deque
+void pushBack(queue *deque, long value);
+
+// Function to remove an element from the front end of the deque
+long popFront(queue *deque);
+typedef struct Block {
+    queue value;
+    struct Block *prev;
+    struct Block *next;
+} Block;
+
+// Définition of the structure for the deque
+typedef struct queueBlock {
+    Block *front;
+    Block *rear;
+} queueBlock;
+
+
+
+
+queueBlock* createFileBlock();
+void pushBackBlock(queueBlock *deque, queue value) ;
+queue popFrontBlock(queueBlock *deque) ;
+
+long iteratif_cache_aware(char* A, size_t lengthA, char* B, size_t lengthB) ;
