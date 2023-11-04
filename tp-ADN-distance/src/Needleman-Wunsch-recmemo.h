@@ -31,7 +31,7 @@
 
 #define CACHE_SIZE (int64_t) 12582912
 #define CACHE_ALIGNEMENT (int64_t) 64
-#define K  (int64_t) 2 //sqrt(12582912)
+#define K  (int64_t) 3547 //sqrt(12582912)
 
 // Définition of the structure for a deque node
 typedef struct queueNode {

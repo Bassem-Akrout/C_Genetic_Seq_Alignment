@@ -54,6 +54,17 @@ queue* createFile() {
     return deque;
 }
 
+queue* copyQueue(queue *originalDeque) {
+    queue *copiedDeque = createFile(); // Crée une nouvelle deque vide pour la copie
+    queueNode *currentNode = originalDeque->front;
+
+    while (currentNode != NULL) {
+        pushBack(copiedDeque, currentNode->value); // Ajoute chaque élément de la deque originale à la copie
+        currentNode = currentNode->next;
+    }
+
+    return copiedDeque;
+}
 // Fonction pour ajouter un élément à l'extrémité arrière de la deque
 void pushBack(queue *deque, long value) {
     queueNode *newNode = (queueNode *)malloc(sizeof(queueNode)); // Alloue de la mémoire pour un nouveau nœud
@@ -181,7 +192,6 @@ long EditDistance_NW_Rec(char* A, size_t lengthA, char* B, size_t lengthB)
          if (ctx.memo[i] == NULL) { perror("EditDistance_NW_Rec: malloc of ctx_memo[i]" ); exit(EXIT_FAILURE); }
          for (int j=0; j<=N; ++j) ctx.memo[i][j] = NOT_YET_COMPUTED ;
       }   }    
-   
    /* Compute phi(0,0) = ctx.memo[0][0] by calling the recursive function EditDistance_NW_RecMemo */
    long res = EditDistance_NW_RecMemo( &ctx, 0, 0 ) ;
    { /* Deallocation of ctx.memo */
@@ -209,27 +219,21 @@ long iteratif(char* A, size_t lengthA, char* B, size_t lengthB) {
    }
    size_t M = ctx.M ;
    size_t N = ctx.N ;
-   //printf("N : %li \n",N);
-   //printf("M : %li \n",M);
    queue *deque = createFile(); // Crée une nouvelle deque vide
 
    // Initialisation de la derniere ligne de Ø avec les valeurs appropriées
    pushBack(deque, (long)0);
-   //printf("value 9 0  %li \n" ,deque->rear->value);
 
    for (int64_t j = N-1; j >= 0; j--) {
       char Yj = ctx.Y[j] ;      
       
       pushBack(deque, (isBase(Yj) ? INSERTION_COST : 0) + deque->rear->value);
-      //printf("value 9 ,j %li \n" ,deque->rear->value);
       
    }
    //remplissage de Ø en ne gardant en mémoire que la derniere ligne 
    for (int64_t i = M - 1; i >= 0; i--) {
-      //printf("lingne :%li \n",i);
       char Xi = ctx.X[i] ;
       pushBack(deque, (isBase(Xi) ? INSERTION_COST : 0) + deque->front->value);
-      //printf("value %li 7 %li   \n" ,i,deque->rear->value);
          for (int64_t j = N-1; j >= 0; j--) {
             char Yj = ctx.Y[j] ;
             long res ;
@@ -242,8 +246,6 @@ long iteratif(char* A, size_t lengthA, char* B, size_t lengthB) {
                res =  deque->rear->value ;
             }
             else{  
-               //printf("aasba loula %li \n",deque->front->value );
-               //printf("aasba thenya %i \n",( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST )) );
                long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
                           : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
                    ) + deque->front->value ;                             //i+1, j+1
@@ -256,7 +258,6 @@ long iteratif(char* A, size_t lengthA, char* B, size_t lengthB) {
                } 
             pushBack(deque, res);
             popFront(deque);
-            //printf("value %li %li :%li \n", i,j,res);
          }
       popFront(deque);
    }
@@ -331,20 +332,16 @@ queue*  block_down_right(size_t N,size_t M,struct NW_MemoContext ctx,queueBlock*
    queue *tempo_deque = createFile();//utilisé par le block d'à gauche de celui là
    // Initialisation de la derniere ligne de Ø avec les valeurs appropriées
    pushBack(deque, (long)0);
-   //printf("value 9 0  %li \n" ,deque->rear->value);
-   for (int64_t j = N-1; j > N-K; j--) {
+   for (int64_t j = N-1; j >  max(N-K,-1); j--) {
       char Yj = ctx.Y[j] ;      
       pushBack(deque, (isBase(Yj) ? INSERTION_COST : 0) + deque->rear->value);
-      //printf("value 9 ,j %li \n" ,deque->rear->value);
       
    }
    //remplissage de Ø en ne gardant en mémoire que la derniere ligne 
-   for (int64_t i = M - 1; i > M-K; i--) {
-      //printf("lingne :%li \n",i);
+   for (int64_t i = M - 1; i >  max(M-K,-1); i--) {
       char Xi = ctx.X[i] ;
       pushBack(deque, (isBase(Xi) ? INSERTION_COST : 0) + deque->front->value);
-      //printf("value %li 7 %li   \n" ,i,deque->rear->value);
-         for (int64_t j = N-1; j > N-K; j--) {
+         for (int64_t j = N-1; j > max(N-K,-1); j--) {
             char Yj = ctx.Y[j] ;
             long res ;
             if (! isBase(Xi))  /* skip ccharacter in Xi that is not a base */
@@ -356,8 +353,6 @@ queue*  block_down_right(size_t N,size_t M,struct NW_MemoContext ctx,queueBlock*
                res =  deque->rear->value ;
             }
             else{  
-               //printf("aasba loula %li \n",deque->front->value );
-               //printf("aasba thenya %i \n",( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST )) );
                long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
                           : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
                    ) + deque->front->value ;                             //i+1, j+1
@@ -370,13 +365,12 @@ queue*  block_down_right(size_t N,size_t M,struct NW_MemoContext ctx,queueBlock*
                } 
             pushBack(deque, res);
             popFront(deque);
-            //printf("value %li %li :%li \n", i,j,res);
          }
       long elt= popFront(deque);
       pushBack(tempo_deque,elt);
    }
-   long elt= popFront(deque);
-   pushBack(tempo_deque,elt);
+
+   pushBack(tempo_deque,deque->rear->value);
    pushBackBlock(listBlock,*deque);
    return tempo_deque;
 }
@@ -386,20 +380,13 @@ queue*  block_down(int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCont
    queue *deque = createFile(); // Crée une nouvelle deque vide
    // Initialisation de la derniere ligne de Ø avec les valeurs appropriées
    char YJ = ctx.Y[J] ;
-   printf("00000 \n");
-   pushBack(deque,(isBase(YJ) ? INSERTION_COST : 0) + tempo_deque->rear->value );
-   printf("11111 \n");
-   //printf("value 9 0  %li \n" ,deque->rear->value);
+   pushBack(deque,(isBase(YJ) ? INSERTION_COST : 0) + tempo_deque->front->value );
    for (int64_t j = J-1; j > max(J-K,-1); j--) {
-      printf("j :%i \n",j);
       char Yj = ctx.Y[j] ;      
       pushBack(deque, (isBase(Yj) ? INSERTION_COST : 0) + deque->rear->value);
-      printf("j ended:%i \n",j);
-      //printf("value 9 ,j %li \n" ,deque->rear->value);
    }
 
-   for (int64_t i = M - 1; i > M-K; i--) {
-      //printf("lingne :%li \n",i);
+   for (int64_t i = M - 1; i > max(M-K,-1); i--) {
 
       char Yj = ctx.Y[J] ;
       long res ;
@@ -413,8 +400,6 @@ queue*  block_down(int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCont
          res =  tempo_deque->front->next->value ;
       }
       else{  
-         //printf("aasba loula %li \n",deque->front->value );
-         //printf("aasba thenya %i \n",( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST )) );
          long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
                      : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
                ) + tempo_deque->front->value ;                             //i+1, j+1
@@ -426,7 +411,6 @@ queue*  block_down(int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCont
          res=min;
          } 
       pushBack(deque, res);
-      //printf("value %li 7 %li   \n" ,i,deque->rear->value);
       for (int64_t j = J-1; j > max(J-K,-1); j--) {
          char Yj = ctx.Y[j] ;
          long res ;
@@ -439,8 +423,6 @@ queue*  block_down(int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCont
             res =  deque->rear->value ;
          }
          else{  
-            //printf("aasba loula %li \n",deque->front->value );
-            //printf("aasba thenya %i \n",( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST )) );
             long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
                         : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
                   ) + deque->front->value ;                             //i+1, j+1
@@ -453,58 +435,59 @@ queue*  block_down(int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCont
             } 
          pushBack(deque, res);
          popFront(deque);
-         //printf("value %li %li :%li \n", i,j,res);
       }
       long elt= popFront(deque);
       pushBack(tempo_deque,elt);
       popFront(tempo_deque);
    }
    popFront(tempo_deque);
+   pushBack(tempo_deque,deque->rear->value);
    pushBackBlock(listBlock,*deque);
 
    return tempo_deque;
 }
 
 queue*  block_right(int I,size_t N,size_t M,struct NW_MemoContext ctx,queueBlock* listBlock){
-   queue *deque =&(listBlock->front->value) ; // Crée une nouvelle deque vide
+   queue* originalDeque=&(listBlock->front->value);
+   queue *deque =copyQueue(originalDeque) ; // Crée une nouvelle deque vide
+   
    queue *tempo_deque = createFile();//utilisé par le block d'à gauche de celui là
    // Initialisation de la derniere ligne de Ø avec les valeurs appropriées
    char Xi = ctx.X[I] ;
    pushBack(deque, (isBase(Xi) ? INSERTION_COST : 0) + deque->front->value);
 
-   for (int64_t j = N-1; j > N-K; j--) {
-            char Yj = ctx.Y[j] ;
-            long res ;
-            if (! isBase(Xi))  /* skip ccharacter in Xi that is not a base */
-               {  ManageBaseError( Xi ) ;
-                  res = deque->front->next->value ;
-               }
-            else if (! isBase(Yj))  /* skip ccharacter in Yj that is not a base */
-            {  ManageBaseError( Yj ) ;
-               res =  deque->rear->value ;
-            }
-            else{  
-               //printf("aasba loula %li \n",deque->front->value );
-               //printf("aasba thenya %i \n",( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST )) );
-               long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
-                        : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
-                  ) + deque->front->value ;                             //i+1, j+1
-               long cas2 = INSERTION_COST + deque->front->next->value ; //i+1, j
-               if (cas2 < min) min = cas2 ;
-               long cas3 = INSERTION_COST + deque->rear->value ;        //i  , j+1
-               if (cas3 < min) min = cas3 ;
-
-               res=min;
-               } 
-            pushBack(deque, res);
-            popFront(deque);
+   for (int64_t j = N-1; j > max(N-K,-1); j--) {
+      char Yj = ctx.Y[j] ;
+      long res ;
+      if (! isBase(Xi))  /* skip ccharacter in Xi that is not a base */
+         {  ManageBaseError( Xi ) ;
+            res = deque->front->next->value ;
          }
+      else if (! isBase(Yj))  /* skip ccharacter in Yj that is not a base */
+      {  ManageBaseError( Yj ) ;
+         res =  deque->rear->value ;
+      }
+      else{  
+         long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
+                  : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
+            ) + deque->front->value ;                             //i+1, j+1
+         long cas2 = INSERTION_COST + deque->front->next->value ; //i+1, j
+         if (cas2 < min) min = cas2 ;
+         long cas3 = INSERTION_COST + deque->rear->value ;        //i  , j+1
+         if (cas3 < min) min = cas3 ;
+
+         res=min;
+         } 
+      pushBack(deque, res);
+      popFront(deque);
+   }
+   popFront(deque);
 
 
    for (int64_t i = I-1; i >  max(I-K,-1); i--) {
       char Xi = ctx.X[i] ;
       pushBack(deque, (isBase(Xi) ? INSERTION_COST : 0) + deque->front->value);
-      for (int64_t j = N-1; j > N-K; j--) {
+      for (int64_t j = N-1; j > max(N-K,-1); j--) {
                char Yj = ctx.Y[j] ;
                long res ;
                if (! isBase(Xi))  /* skip ccharacter in Xi that is not a base */
@@ -516,8 +499,6 @@ queue*  block_right(int I,size_t N,size_t M,struct NW_MemoContext ctx,queueBlock
                   res =  deque->rear->value ;
                }
                else{  
-                  //printf("aasba loula %li \n",deque->front->value );
-                  //printf("aasba thenya %i \n",( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST )) );
                   long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
                            : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
                      ) + deque->front->value ;                             //i+1, j+1
@@ -534,8 +515,7 @@ queue*  block_right(int I,size_t N,size_t M,struct NW_MemoContext ctx,queueBlock
       long elt= popFront(deque);
       pushBack(tempo_deque,elt);
    }
-   long elt= popFront(deque);
-   pushBack(tempo_deque,elt);
+   pushBack(tempo_deque,deque->rear->value);
    pushBackBlock(listBlock,*deque);
    return tempo_deque;  
 }
@@ -543,8 +523,8 @@ queue*  block_right(int I,size_t N,size_t M,struct NW_MemoContext ctx,queueBlock
 queue*  block(int I,int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoContext ctx,queueBlock* listBlock){
    long elt =(popFrontBlock(listBlock)).rear->value ; // Crée une nouvelle deque vide
    
-   queue deque_not_ptr =(popFrontBlock(listBlock));
-   queue * deque=&deque_not_ptr;
+   queue *originalDeque =&(listBlock->front->value);
+   queue * deque=copyQueue(originalDeque);
 
    char Xi = ctx.X[I] ;
    char Yj = ctx.Y[J] ;
@@ -558,8 +538,6 @@ queue*  block(int I,int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCon
       res =  tempo_deque->front->value ;
    }
    else{  
-      //printf("aasba loula %li \n",deque->front->value );
-      //printf("aasba thenya %i \n",( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST )) );
       long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
                : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
          ) + elt ;                             //i+1, j+1
@@ -573,33 +551,31 @@ queue*  block(int I,int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCon
    pushBack(deque, res);
 
    for (int64_t j = J-1; j >max(J-K,-1); j--) {
-            char Yj = ctx.Y[j] ;
-            long res ;
-            if (! isBase(Xi))  /* skip ccharacter in Xi that is not a base */
-               {  ManageBaseError( Xi ) ;
-                  res = deque->front->next->value ;
-               }
-            else if (! isBase(Yj))  /* skip ccharacter in Yj that is not a base */
-            {  ManageBaseError( Yj ) ;
-               res =  deque->rear->value ;
-            }
-            else{  
-               //printf("aasba loula %li \n",deque->front->value );
-               //printf("aasba thenya %i \n",( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST )) );
-               long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
-                        : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
-                  ) + deque->front->value ;                             //i+1, j+1
-               long cas2 = INSERTION_COST + deque->front->next->value ; //i+1, j
-               if (cas2 < min) min = cas2 ;
-               long cas3 = INSERTION_COST + deque->rear->value ;        //i  , j+1
-               if (cas3 < min) min = cas3 ;
-
-               res=min;
-               } 
-            pushBack(deque, res);
-            popFront(deque);
+      char Yj = ctx.Y[j] ;
+      long res ;
+      if (! isBase(Xi))  /* skip ccharacter in Xi that is not a base */
+         {  ManageBaseError( Xi ) ;
+            res = deque->front->next->value ;
          }
+      else if (! isBase(Yj))  /* skip ccharacter in Yj that is not a base */
+      {  ManageBaseError( Yj ) ;
+         res =  deque->rear->value ;
+      }
+      else{  
+         long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
+                  : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
+            ) + deque->front->value ;                             //i+1, j+1
+         long cas2 = INSERTION_COST + deque->front->next->value ; //i+1, j
+         if (cas2 < min) min = cas2 ;
+         long cas3 = INSERTION_COST + deque->rear->value ;        //i  , j+1
+         if (cas3 < min) min = cas3 ;
 
+         res=min;
+         } 
+      pushBack(deque, res);
+      popFront(deque);
+   }
+   popFront(deque);
 
    for (int64_t i = I-1; i >  max(I-K,-1); i--) {
 
@@ -615,8 +591,6 @@ queue*  block(int I,int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCon
          res =  tempo_deque->front->next->value ;
       }
       else{  
-         //printf("aasba loula %li \n",deque->front->value );
-         //printf("aasba thenya %i \n",( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST )) );
          long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
                      : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
                ) + tempo_deque->front->value ;                             //i+1, j+1
@@ -628,7 +602,6 @@ queue*  block(int I,int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCon
          res=min;
          } 
       pushBack(deque, res);
-      //printf("value %li 7 %li   \n" ,i,deque->rear->value);
 
       for (int64_t j = J-1; j > max(J-K,-1); j--) {
          char Yj = ctx.Y[j] ;
@@ -642,8 +615,6 @@ queue*  block(int I,int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCon
             res =  deque->rear->value ;
          }
          else{  
-            //printf("aasba loula %li \n",deque->front->value );
-            //printf("aasba thenya %i \n",( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST )) );
             long min =( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
                      : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
                ) + deque->front->value ;                             //i+1, j+1
@@ -662,6 +633,7 @@ queue*  block(int I,int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCon
       popFront(tempo_deque);
 
       }
+   pushBack(tempo_deque,deque->rear->value);
    popFront(tempo_deque);
    pushBackBlock(listBlock,*deque);
 
@@ -669,7 +641,6 @@ queue*  block(int I,int J,queue* tempo_deque,size_t N,size_t M,struct NW_MemoCon
 }
 
 long iteratif_cache_aware(char* A, size_t lengthA, char* B, size_t lengthB) {
-   printf("nichts created \n");
    _init_base_match() ;
    struct NW_MemoContext ctx;
    if (lengthA >= lengthB) /* X is the longest sequence, Y the shortest */
@@ -686,27 +657,22 @@ long iteratif_cache_aware(char* A, size_t lengthA, char* B, size_t lengthB) {
    }
    size_t M = ctx.M ;
    size_t N = ctx.N ;
-   printf("M: %i  \n",M);
-   printf("N: %i  \n",N);
-   printf("K: %i  \n",K);
    queueBlock *listBlock =createFileBlock();
-   printf("listBlock created \n");
    queue * tempo_queue =block_down_right(N,M,ctx,listBlock);
-   printf("tempo_queue created \n");
    for (int J =N-K; J >= 0; J -= K){
-      printf("hello \n");
-      printf("%i \n",J);
       tempo_queue=block_down(J,tempo_queue,N,M,ctx,listBlock);
       }
 
-//   for (int I =N-K; I >= 0; I -= K){
-//         block_right(I,N,M,ctx,listBlock);
-//         for (int J =N-K; J >= 0; J -= K){
-//            block(I,J,tempo_queue,N,M,ctx,listBlock);
-//         }
-//         popFrontBlock(listBlock);
-//      }
-//   return (listBlock->rear->value.rear->value);
-   return (long)10;
+   for (int I =M-K; I >= 0; I -= K){
+         tempo_queue=block_right(I,N,M,ctx,listBlock);
+
+         for (int J =N-K; J >= 0; J -= K){
+            tempo_queue=block(I,J,tempo_queue,N,M,ctx,listBlock);
+         }
+         popFrontBlock(listBlock);
+         
+      }
+   return (listBlock->rear->value.rear->value);
 
 }
+
