@@ -672,7 +672,104 @@ long iteratif_cache_aware(char* A, size_t lengthA, char* B, size_t lengthB) {
          popFrontBlock(listBlock);
          
       }
+   //free listBlock
    return (listBlock->rear->value.rear->value);
 
+}
+
+void rec(struct NW_MemoContext* ctx,int Ib,int Ie,int Jb,int Je){
+   int nblines=Ie-Ib;
+   int nbcolumns=Je-Jb;
+   if (( nblines <= S ) && ( nbcolumns <= S) ) {
+      int i , j ;
+      for ( i = Ie ; i > Ib ; i -- ){
+         char Xi = ctx->X[i] ;   
+         for ( j = Je ; j > Jb ; j -- ){
+            char Yj = ctx->Y[j] ;   
+            //calcul de ctx[i,j]
+            long res;
+            if (! isBase(Xi))  /* skip ccharacter in Xi that is not a base */
+            {  ManageBaseError( Xi ) ;
+               ctx->memo[i][j]=(isBase(Xi) ? INSERTION_COST : 0)+ctx->memo[i+1][j];
+            }
+            else if (! isBase(Yj))  /* skip ccharacter in Yj that is not a base */
+            {  ManageBaseError( Yj ) ;
+               ctx->memo[i][j]=(isBase(Yj) ? INSERTION_COST : 0)+ctx->memo[i][j+1];
+            }
+            else  
+            {  /* Note that stopping conditions (i==M) and (j==N) are already stored in c->memo (cf EditDistance_NW_Rec) */ 
+               long min = /* initialization  with cas 1*/
+                        ( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
+                              : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
+                        )
+                        + ctx->memo[i+1][j+1]; 
+               { long cas2 = INSERTION_COST +ctx->memo[i+1][j];      
+               if (cas2 < min) min = cas2 ;
+               }
+               { long cas3 = INSERTION_COST + ctx->memo[i][j+1];      
+               if (cas3 < min) min = cas3 ; 
+               }
+               res = min ;
+               ctx->memo[i][j] = res ;
+            }
+            
+            }
+      }
+   }
+   else if ( nblines > nbcolumns ) {
+      int mid = nblines / 2 ;
+      rec(ctx,Ib+mid,Ie, Jb, Je);
+      rec(ctx,Ib,Ib+mid, Jb, Je);
+   }
+   else {
+      int mid = nbcolumns / 2 ;
+      rec(ctx,Ib,Ie, Jb+mid, Je);
+      rec(ctx,Ib,Ie, Jb, Jb+mid);
+   }
+}
+long rec_cache_oblivious(char* A, size_t lengthA, char* B, size_t lengthB) {
+
+   _init_base_match() ;
+   struct NW_MemoContext ctx;
+   if (lengthA >= lengthB) /* X is the longest sequence, Y the shortest */
+   {  ctx.X = A ;
+      ctx.M = lengthA ;
+      ctx.Y = B ;
+      ctx.N = lengthB ;
+   }
+   else
+   {  ctx.X = B ;
+      ctx.M = lengthB ;
+      ctx.Y = A ;
+      ctx.N = lengthA ;
+   }
+   size_t M = ctx.M ;
+   size_t N = ctx.N ;
+   {  /* Allocation and initialization of ctx.memo to NOT_YET_COMPUTED*/
+      /* Note: memo is of size (N+1)*(M+1) but is stored as (M+1) distinct arrays each with (N+1) continuous elements 
+       * It would have been possible to allocate only one big array memezone of (M+1)*(N+1) elements 
+       * and then memo as an array of (M+1) pointers, the memo[i] being the address of memzone[i*(N+1)].
+       */ 
+      ctx.memo = (long **) malloc ( (M+1) * sizeof(long *)) ;
+      if (ctx.memo == NULL) { perror("EditDistance_NW_Rec: malloc of ctx_memo" ); exit(EXIT_FAILURE); }
+      for (int i=0; i <= M; ++i) 
+         {  ctx.memo[i] = (long*) malloc( (N+1) * sizeof(long));
+            if (ctx.memo[i] == NULL) { perror("EditDistance_NW_Rec: malloc of ctx_memo[i]" ); exit(EXIT_FAILURE); }
+            for (int j=0; j<=N; ++j) ctx.memo[i][j] = NOT_YET_COMPUTED ;
+         }   
+      }  
+   ctx.memo[M][N]=(long)0;
+   for (int64_t j = N-1; j >= 0; j--) {
+      char Yj = ctx.Y[j] ;      
+      ctx.memo[M][j]=(isBase(Yj) ? INSERTION_COST : 0)+ctx.memo[M][j+1];      
+   }
+   for (int64_t i = M-1; i >= 0; i--) {
+      char Xi = ctx.X[i] ;      
+      ctx.memo[i][N]=(isBase(Xi) ? INSERTION_COST : 0)+ctx.memo[i+1][N];      
+   }
+   rec(&ctx,-1,M-1,-1,N-1);
+   long res=ctx.memo[0][0];
+   //free
+   return res;
 }
 

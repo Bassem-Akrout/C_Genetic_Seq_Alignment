@@ -29,9 +29,11 @@
 #define INSERTION_COST		2
 
 
-#define CACHE_SIZE (int64_t) 12582912
+#define D1_CACHE_SIZE (int64_t) 262144
 #define CACHE_ALIGNEMENT (int64_t) 64
-#define K  (int64_t) 3547 //sqrt(12582912)
+#define K  (int64_t) 64 //sqrt(262144/64) on suppose que les données sont non contigues
+
+#define S  (int64_t) 64
 
 // Définition of the structure for a deque node
 typedef struct queueNode {
@@ -97,3 +99,4 @@ void pushBackBlock(queueBlock *deque, queue value) ;
 queue popFrontBlock(queueBlock *deque) ;
 
 long iteratif_cache_aware(char* A, size_t lengthA, char* B, size_t lengthB) ;
+long rec_cache_oblivious(char* A, size_t lengthA, char* B, size_t lengthB) ;
