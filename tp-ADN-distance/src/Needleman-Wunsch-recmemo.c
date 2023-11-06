@@ -677,24 +677,111 @@ long iteratif_cache_aware(char* A, size_t lengthA, char* B, size_t lengthB) {
 
 }
 
-void rec(struct NW_MemoContext* ctx,int Ib,int Ie,int Jb,int Je){
+
+
+
+
+
+// Fonction de hachage
+unsigned int hash(int i, int j, size_t M) {
+    unsigned int prime1 = 31;
+    unsigned int prime2 = 37;
+
+    unsigned int hashValue = (prime1 * i + prime2 * j) % M;
+    return hashValue;
+}
+
+// Initialise la table de hachage
+void initHashTable(HashTable* ht, size_t M) {
+    ht->table = (HashNode**)malloc(sizeof(HashNode*) * M);
+    ht->size = M;
+    for (size_t i = 0; i < M; i++) {
+        ht->table[i] = NULL;
+    }
+}
+
+// Ajoute une paire ((i, j), long valeur) à la table de hachage
+void addToHashTable(HashTable* ht, int i, int j, long valeur) {
+    size_t index = hash(i, j, ht->size);
+    HashNode* newNode = (HashNode*)malloc(sizeof(HashNode));
+    newNode->pair.i = i;
+    newNode->pair.j = j;
+    newNode->pair.valeur = valeur;
+    newNode->next = ht->table[index];
+    ht->table[index] = newNode;
+}
+
+// Supprime une paire de la table de hachage en fonction de i et j
+void removeFromHashTable(HashTable* ht, int i, int j) {
+    size_t index = hash(i, j, ht->size);
+    HashNode* current = ht->table[index];
+    HashNode* prev = NULL;
+
+    while (current != NULL) {
+        if (current->pair.i == i && current->pair.j == j) {
+            if (prev != NULL) {
+                prev->next = current->next;
+            } else {
+                ht->table[index] = current->next;
+            }
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+// Recherche une paire dans la table de hachage en fonction de i et j
+long findInHashTable(HashTable* ht, int i, int j) {
+    size_t index = hash(i, j, ht->size);
+    HashNode* current = ht->table[index];
+    while (current != NULL) {
+        if (current->pair.i == i && current->pair.j == j) {
+            return current->pair.valeur;
+        }
+        current = current->next;
+    }
+    return -1; // Retourne -1 si la paire n'est pas trouvée
+}
+
+// Libère la mémoire associée à la table de hachage
+void freeHashTable(HashTable* ht) {
+    for (size_t i = 0; i < ht->size; i++) {
+        HashNode* current = ht->table[i];
+        while (current != NULL) {
+            HashNode* next = current->next;
+            free(current);
+            current = next;
+        }
+        ht->table[i] = NULL;
+    }
+    free(ht->table);
+}
+
+void rec(HashTable* ht,struct NW_MemoContext* ctx,int64_t Ib,int Ie,int64_t  Jb,int Je){
+
+   
+
    int nblines=Ie-Ib;
    int nbcolumns=Je-Jb;
    if (( nblines <= S ) && ( nbcolumns <= S) ) {
+      //printf(" (%i->%i,%i->%i) \n",Ib,Ie,Jb,Je);
       int i , j ;
-      for ( i = Ie ; i > Ib ; i -- ){
-         char Xi = ctx->X[i] ;   
-         for ( j = Je ; j > Jb ; j -- ){
+      for ( i = Ie ; i > Ib ; -- i ){
+         char Xi = ctx->X[i] ;
+         for ( j = Je ; j > Jb ; -- j  ){
+              
             char Yj = ctx->Y[j] ;   
             //calcul de ctx[i,j]
             long res;
             if (! isBase(Xi))  /* skip ccharacter in Xi that is not a base */
             {  ManageBaseError( Xi ) ;
-               ctx->memo[i][j]=(isBase(Xi) ? INSERTION_COST : 0)+ctx->memo[i+1][j];
+                addToHashTable(ht,i,j,findInHashTable(ht,i+1,j));
             }
             else if (! isBase(Yj))  /* skip ccharacter in Yj that is not a base */
             {  ManageBaseError( Yj ) ;
-               ctx->memo[i][j]=(isBase(Yj) ? INSERTION_COST : 0)+ctx->memo[i][j+1];
+                addToHashTable(ht,i,j,findInHashTable(ht,i,j+1));
             }
             else  
             {  /* Note that stopping conditions (i==M) and (j==N) are already stored in c->memo (cf EditDistance_NW_Rec) */ 
@@ -702,29 +789,38 @@ void rec(struct NW_MemoContext* ctx,int Ib,int Ie,int Jb,int Je){
                         ( isUnknownBase(Xi) ?  SUBSTITUTION_UNKNOWN_COST 
                               : ( isSameBase(Xi, Yj) ? 0 : SUBSTITUTION_COST ) 
                         )
-                        + ctx->memo[i+1][j+1]; 
-               { long cas2 = INSERTION_COST +ctx->memo[i+1][j];      
+                        + findInHashTable(ht,i+1,j+1); 
+               { long cas2 = INSERTION_COST +findInHashTable(ht,i+1,j);      
                if (cas2 < min) min = cas2 ;
                }
-               { long cas3 = INSERTION_COST + ctx->memo[i][j+1];      
+               { long cas3 = INSERTION_COST + findInHashTable(ht,i,j+1);      
                if (cas3 < min) min = cas3 ; 
                }
                res = min ;
-               ctx->memo[i][j] = res ;
+               addToHashTable(ht,i,j,res);
             }
+        
             
             }
+            
       }
+      //printf("traitement du block Ib,Jb,Ie,Je :%i ,%i ,%i ,%i \n" ,Ib,Jb,Ie,Je);
+      for ( i = Ie+1 ; i > Ib+1 ; -- i ){
+         for ( j = Je+1 ; j > Jb+1 ; -- j  ){
+            removeFromHashTable(ht,i,j);
+         }
+      }
+      
    }
    else if ( nblines > nbcolumns ) {
       int mid = nblines / 2 ;
-      rec(ctx,Ib+mid,Ie, Jb, Je);
-      rec(ctx,Ib,Ib+mid, Jb, Je);
+      rec(ht,ctx,Ib+mid,Ie, Jb, Je);
+      rec(ht,ctx,Ib,Ib+mid, Jb, Je);
    }
    else {
       int mid = nbcolumns / 2 ;
-      rec(ctx,Ib,Ie, Jb+mid, Je);
-      rec(ctx,Ib,Ie, Jb, Jb+mid);
+      rec(ht,ctx,Ib,Ie, Jb+mid, Je);
+      rec(ht,ctx,Ib,Ie, Jb, Jb+mid);
    }
 }
 long rec_cache_oblivious(char* A, size_t lengthA, char* B, size_t lengthB) {
@@ -745,31 +841,37 @@ long rec_cache_oblivious(char* A, size_t lengthA, char* B, size_t lengthB) {
    }
    size_t M = ctx.M ;
    size_t N = ctx.N ;
-   {  /* Allocation and initialization of ctx.memo to NOT_YET_COMPUTED*/
-      /* Note: memo is of size (N+1)*(M+1) but is stored as (M+1) distinct arrays each with (N+1) continuous elements 
-       * It would have been possible to allocate only one big array memezone of (M+1)*(N+1) elements 
-       * and then memo as an array of (M+1) pointers, the memo[i] being the address of memzone[i*(N+1)].
-       */ 
-      ctx.memo = (long **) malloc ( (M+1) * sizeof(long *)) ;
-      if (ctx.memo == NULL) { perror("EditDistance_NW_Rec: malloc of ctx_memo" ); exit(EXIT_FAILURE); }
-      for (int i=0; i <= M; ++i) 
-         {  ctx.memo[i] = (long*) malloc( (N+1) * sizeof(long));
-            if (ctx.memo[i] == NULL) { perror("EditDistance_NW_Rec: malloc of ctx_memo[i]" ); exit(EXIT_FAILURE); }
-            for (int j=0; j<=N; ++j) ctx.memo[i][j] = NOT_YET_COMPUTED ;
-         }   
-      }  
-   ctx.memo[M][N]=(long)0;
+      
+    HashTable ht;
+    initHashTable(&ht, M);
+    addToHashTable(&ht, M, N, (long)0);
+
    for (int64_t j = N-1; j >= 0; j--) {
-      char Yj = ctx.Y[j] ;      
-      ctx.memo[M][j]=(isBase(Yj) ? INSERTION_COST : 0)+ctx.memo[M][j+1];      
+      char Yj = ctx.Y[j] ;
+      long elt0=findInHashTable(&ht, M, j+1);
+      
+      long elt=(isBase(Yj) ? INSERTION_COST : 0)+elt0;  
+      addToHashTable(&ht, M, j, elt);    
    }
    for (int64_t i = M-1; i >= 0; i--) {
       char Xi = ctx.X[i] ;      
-      ctx.memo[i][N]=(isBase(Xi) ? INSERTION_COST : 0)+ctx.memo[i+1][N];      
+      long elt0=findInHashTable(&ht, i+1 , N);
+      long elt= (isBase(Xi) ? INSERTION_COST : 0)+elt0; 
+      addToHashTable(&ht, i, N, elt);       
    }
-   rec(&ctx,-1,M-1,-1,N-1);
-   long res=ctx.memo[0][0];
+   rec(&ht,&ctx,(int64_t)(-1),M-1,(int64_t)(-1),N-1);
+   
+   /*   for (int i=0; i < M+1; i++) {
+
+         printf("\n");
+         for (int j=0; j< N+1; j++)  
+            printf("%i ",findInHashTable(&ht, i , j));
+      }*/
+
+   long res=findInHashTable(&ht,0,0);
    //free
+   freeHashTable(&ht);
+
    return res;
 }
 

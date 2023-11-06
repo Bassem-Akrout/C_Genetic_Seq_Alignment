@@ -91,7 +91,24 @@ typedef struct queueBlock {
     Block *rear;
 } queueBlock;
 
+// Structure pour représenter une paire ((i, j), long valeur)
+typedef struct {
+    int i;
+    int j;
+    long valeur;
+} Pair;
 
+// Structure pour représenter un élément de la table de hachage
+typedef struct HashNode {
+    Pair pair;
+    struct HashNode* next;
+} HashNode;
+
+// Structure pour représenter la table de hachage
+typedef struct HashTable {
+    HashNode** table;
+    size_t size;
+} HashTable;
 
 
 queueBlock* createFileBlock();
@@ -99,4 +116,4 @@ void pushBackBlock(queueBlock *deque, queue value) ;
 queue popFrontBlock(queueBlock *deque) ;
 
 long iteratif_cache_aware(char* A, size_t lengthA, char* B, size_t lengthB) ;
-long rec_cache_oblivious(char* A, size_t lengthA, char* B, size_t lengthB) ;
+long rec_cache_oblivious(HashTable* ht,char* A, size_t lengthA, char* B, size_t lengthB) ;
