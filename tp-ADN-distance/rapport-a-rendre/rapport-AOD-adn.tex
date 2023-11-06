@@ -80,10 +80,11 @@ Comment faites-vous sur une machine donnée pour choisir ce seuil d'arrêt ? Que
 %%%%%%%%%%%%%%%%%%%
 \section{Expérimentation (7 points)}
 
-Description de la machine d'expérimentation:
-Processeur: À PRÉCISER
-Mémoire: À PRÉCISER
-Système: À PRÉCISER
+Description de la machine d'expérimentation: \textbf{ENSIPC}
+Processeur: \textbf{Intel(R) Core(TM) i5-8500 CPU @ 3.00GHz}
+Mémoire: \textbf{total        used        free      shared  buff/cache   available
+          31Gi       2.7Gi        24Gi       101Mi       3.7Gi        27Gi}
+Système: \textbf{Linux ensipc}
 
 \subsection{(3 points) Avec {\tt valgrind --tool=cachegrind --D1=4096,4,64}}
 \begin{verbatim}
@@ -91,7 +92,12 @@ Système: À PRÉCISER
 \end{verbatim}
 en prenant pour $N$ et $M$ les valeurs dans le tableau ci-dessous.
 
-Les paramètres du cache LL de second niveau sont : À PRÉCISER.
+Les paramètres du cache LL de second niveau sont :\\ \textbf{Caches (sum of all):     
+L1d:                   192 KiB (6 instances)
+L1i:                   192 KiB (6 instances)
+L2:                    1.5 MiB (6 instances)
+L3(cache LL):          9 MiB (1 instance)
+}
 
 {\em Le tableau ci-dessous est un exemple, complété avec vos résultats et ensuite analysé.}
 \\
@@ -205,25 +211,17 @@ distanceEdition & GCA\_024498555.1\_ASM2449855v1\_genomic.fna & 77328790 & M \\
                 & GCF\_000001735.4\_TAIR10.1\_genomic.fna     & 30808129 & N
 \end{tabular}}
 
-On mesure le temps écoulé, le temps CPU et l'énergie consommée avec : {\em [préciser ici comment vous avez fait la mesure :
-{\tt time} 
-ou {\tt /usr/bin/time}
-ou {\tt gettimeofday}
-ou {\tt getrusage}
+On mesure le temps écoulé, le temps CPU et l'énergie consommée avec : \\ {\em
+\textbf{La mesure a été faite avec l'éxécutable distanceEdition-perf dans le Makefile-test (voir makefile test) : On a ajouté une règle perf-test pour faire tous les
+tests nécéssaires sur le temps / énérgie. }
+
 % ou {\tt perfstart/perfstop\_and\_display}%
 % \footnote{
 %     cf {\tt /matieres/4MMAOD6/2023-10-TP-AOD-ADN-Docs-fournis/tp-ADN-distance/srcperf/0-LisezMoi}
 % }
-ou... \\
-L'énergie consommée sur le processeur peut être estimée en regardant le compteur RAPL d'énergie (en microJoule)
-pour chaque cœur avant et après l'exécution et en faisant la différence.
-Le compteur du cœur $K$ est dans le fichier \verb+/sys/class/powercap/intel-rapl/intel-rapl:K/energy_uj+.\\
-Par exemple, pour le cœur 0 : \verb+/sys/class/powercap/intel-rapl/intel-rapl:0/energy_uj+
-% Les fonctions fournies 
-% {\tt perfstart/perfstop\_and\_display} dans le répertoire
-% {\tt /matieres/4MMAOD6/2022-10-TP-AOD-ADN-Docs-fournis/tp-ADN-distance/srcperf} 
-% font ces mesures de temps CPU, écoulé et énergie.
-% }
+\\
+
+ }
 
 Nota bene : pour avoir un résultat fiable/reproductible (si variabilité), 
 il est préférable de faire chaque mesure 5 fois et de reporter l'intervalle
@@ -248,22 +246,22 @@ N & M
 \\ \hline
 \hline
 10000 & 10000 
-& 2.84833 & 2.85269  & 1.96746e-05  % itératif
-&  &  &   % cache-aware
+& 2.81769 & 2.82062  & 1.96746e-05  % itératif
+& 3.74311 & 3.90681 & 2.04487e-05  % cache-aware
 
 \\ \hline
 20000 & 20000 
-& 11.3283 & 11.3283 & 8.25237e-05  % itératif
-&  &  &   % cache-aware
+& 11.3032 & 11.3034 & 7.32657e-05  % itératif
+& 16.9161 & 17.3804 & 9.26128e-05  % cache-aware
 
 \\ \hline
 30000 & 30000 
-& 25.3101 & 25.3101 & 0.0001368 % itératif
-&  &  &   % cache-aware
+& 25.2021 & 25.2054 & 0.0001414 % itératif
+& 36.237 & 37.3177 & 0.0002049  % cache-aware
 \\ \hline
 40000 & 40000 
-& 44.6468  & 44.6468  & 0.0002528  % itératif
-&  &  &   % cache-aware
+& 44.3899  & 44.3903  & 0.0002387  % itératif
+& 61.6594 & 63.5406 & 0.0003539 % cache-aware
 \\ \hline
 \hline
 \end{tabular}
@@ -284,19 +282,19 @@ N & M
 \hline
 10000 & 10000 
 
-& 8.88829  & 8.88829  & 5.28187e-05  % cache-oblivious
+& 8.96335 & 9.63368  & 5.28187e-05  % cache-oblivious
 \\ \hline
 20000 & 20000 
 
-& 35.4604 & 35.4604 & 0.0001909  % cache-oblivious
+& 35.3481 & 35.5167 & 0.0001909  % cache-oblivious
 \\ \hline
 30000 & 30000 
 
-& 80.2692 & 80.2692 & 0.0003930  % cache-oblivious
+& 79.7995 & 79.8191 & 0.0003930  % cache-oblivious
 \\ \hline
 40000 & 40000 
 
-& 141.994 & 141.994 & 0.0007156  % cache-oblivious
+& 142.422 & 142.423 & 0.0007156  % cache-oblivious
 \\ \hline
 \hline
 \end{tabular}
@@ -311,13 +309,16 @@ Quel algorithme se comporte le mieux avec Valgrind et les paramètres proposés,
     & GCF\_000001735.4\_TAIR10.1\_genomic.fna & 30808129 & 19944517
 \end{tabular}
 
-À partir des résultats précédents, le programme \emph{préciser itératif/cache aware/cache oblivious} est le plus performant pour la commande ci-dessus (test 5). Les ressources pour l'exécution seraient environ :
+\\ \textbf{Après avoir élaboré nos algorithmes et en testant le dernier test sur les longueurs respectives 10000 , 20000, 30000, 40000 , On a créé un petit programme python
+qui permet de faire une régression linéaire simple pour savoir le temps d'éxécution pour des valeurs très grandes de longueurs de séquences génétiques (similaires à celles du test5): Vous pouvez trouver
+le code python dans le dossier ./src .. } \\
+\\ À partir des résultats précédents du script python et de l'éxécution de nos algorithmes, le programme \emph{itératif} est le plus performant pour la commande ci-dessus (test 5). Les ressources pour l'exécution seraient environ :
 \begin{itemize}
-    \item Temps CPU (en s) : ...
-    \item Énergie (en kWh) : ...
+    \item Temps CPU (en h) : 25heures .. 
+    \item Énergie (en kWh) : ~ 0.1466 kWh ..  
 \end{itemize}
 
 Question subsidiaire : comment feriez-vous pour avoir un programme s'exécutant en moins d'1 minute ?
-\emph{Donner le principe en moins d'une ligne, même un mot précis suffit!}
+\emph{Le parallélisme ! }
 
 \end{document}
