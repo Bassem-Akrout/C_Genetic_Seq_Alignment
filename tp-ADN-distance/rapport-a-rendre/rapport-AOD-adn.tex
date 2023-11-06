@@ -23,7 +23,7 @@
 \thispagestyle{empty}
 
 \noindent\centerline{\bf\large Questionnaire TP AOD 2023-2024 à compléter et rendre sur Teide}
-Binôme (Akrout\textsubscript{1} Bassem\textsubscript{1} -- Khalfallah\textsubscript{2} Firas\textsubscript{2}): \dotfill
+Binôme (Akrout Bassem -- Khalfallah Firas)
 
 \section{Préambule (1 point)}
 Le programme récursif avec mémorisation fourni alloue une mémoire de taille $N \cdot M$. Il génère une erreur d'exécution sur le test 5 (ci-dessous). Pourquoi ?
@@ -44,7 +44,7 @@ Le code remplit la dernière ligne de la matrice de coût (Ø) avec les valeurs 
 Le code remplit la matrice ligne par ligne en utilisant la file deque pour stocker temporairement les valeurs nécessaires, en supprimant les valeurs dont on n'a plus besoin au fur et à mesure, tout en prenant soin de gérer les cas particuliers.
 Analyse du coût théorique de ce programme en fonction de $N$ et $M$ en notation $\Theta(...)$
 \begin{enumerate}
-  \item Place mémoire allouée (ne pas compter les 2 séquences $X$ et $Y$ en mémoire via {\tt mmap}) :$\Theta( 3 \times(M + 1) x sizeof(queueNode))$ ( la multiplication par 3 représente le fait que queueNode contient trois attributs dans la structure
+  \item Place mémoire allouée (ne pas compter les 2 séquences $X$ et $Y$ en mémoire via {\tt mmap}) :$\Theta( 3 \times(M + 1) \times sizeof(queueNode))$\\( la multiplication par 3 représente le fait que queueNode contient trois attributs dans la structure
   value / prev / next ) \\
   \item Travail (nombre d'opérations) :$\Theta(M * N * f)$, où f représente le coût des opérations internes dans chaque itération de la troisième boucle.(pushBack, popFront, isBase, ManageBaseError)
   \item Nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\frac{3 \times (M + 1)}{L} +\frac{N + M}{L}$ = $\frac{(3 \times N) + M}{L}$
@@ -62,7 +62,7 @@ les fonctions block_right et block \\
 
 Analyse du coût théorique de ce programme en fonction de $N$ et $M$ en notation $\Theta(...)$
 \begin{enumerate}
-  \item Place mémoire (ne pas compter les 2 séquences initiales $X$ et $Y$ en mémoire via {\tt mmap}) : $\Theta(3 \times(M+1)*sizeof(queueNode))$
+  \item Place mémoire (ne pas compter les 2 séquences initiales $X$ et $Y$ en mémoire via {\tt mmap}) : $\Theta(3 \times(M+1)\times sizeof(queueNode))$
   \item Travail (nombre d'opérations) : $\Theta(M * N * f + M * g )$, où f représente le coût des opérations internes dans chaque itération (pushBack, popFront, isBase, ManageBaseError) et g représente le coût des opérations internes dans chaque itération (pushBackBlock, popFrontBlock) \\
   \item Nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\frac{3 \times (M + 1)}{L} +\frac{N + M}{L} + \frac{N* M}{K^2}$ = $\frac{(3 \times N) + M}{L} + \frac{N* M * L}{Z} $ \\
   \item Nombre de défauts de cache si $Z \ll \min(N,M)$ : $\frac{3 \times N M}{L} +\frac{N + M}{L} + \frac{N* M * L}{Z}$ \\
@@ -78,23 +78,23 @@ Analyse du coût théorique de ce programme en fonction de $N$ et $M$ en notatio
   \item Place mémoire (ne pas compter les 2 séquences initiales $X$ et $Y$ en mémoire via {\tt mmap}) : $\Theta( 3 \times(M + 1)\times sizeof(HashNode))$
   \item Travail (nombre d'opérations) : $\Theta(M * N * f)$, où f représente le coût de findInHashTable, addToHashTable et removeFromHashTable.\\ 
   \item Nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $ \frac{ (M+1)}{L} $ (En supposant que la distribution des 
-  données dans la hashtable est idéale mais ce n'est pas le cas. Ce qui provoque des défauts de cache en plus. En effet la table de hashage ne permet pas d'utiliser les mêmes zones de mémoire et donc 
-  ne permet pas une localité idéale dans le cache ) \\
+  données dans la hashtable est idéale mais ce n'est pas le cas. Ce qui provoque des défauts de cache en plus. \\
+  En effet la table de hashage ne permet pas de réutiliser les mêmes zones de mémoire et donc ne permet pas une localité idéale dans le cache ) \\
   \item Nombre de défauts de cache si $Z \ll \min(N,M)$ : $ \frac{3 \times (M N)}{L} $
 \end{enumerate}
 
 \section{Réglage du seuil d'arrêt récursif du programme cache-oblivious (1 point)}
 Comment faites-vous sur une machine donnée pour choisir ce seuil d'arrêt ? Quelle valeur avez-vous choisie pour les PC de l'Ensimag ? \\
-Puisqu'on utilise un dictionnaire, on suppose que les données sont non-contigües donc on prend $ S = \sqrt(\frac{Z}{L}) $
+Puisqu'on utilise un dictionnaire, on suppose que les données sont non-contigües donc on prend $ S = \sqrt(\frac{Z}{L}) = 8 $
 
 %%%%%%%%%%%%%%%%%%%
 \section{Expérimentation (7 points)}
 
-Description de la machine d'expérimentation: \textbf{ENSIPC}
-Processeur: \textbf{Intel(R) Core(TM) i5-8500 CPU @ 3.00GHz}
+Description de la machine d'expérimentation: \textbf{ENSIPC}\\
+Processeur: \textbf{Intel(R) Core(TM) i5-8500 CPU @ 3.00GHz}\\
 Mémoire: \textbf{total        used        free      shared  buff/cache   available
-          31Gi       2.7Gi        24Gi       101Mi       3.7Gi        27Gi}
-Système: \textbf{Linux ensipc}
+          31Gi       2.7Gi        24Gi       101Mi       3.7Gi        27Gi}\\
+Système: \textbf{Linux ensipc}\\
 
 \subsection{(3 points) Avec {\tt valgrind --tool=cachegrind --D1=4096,4,64}}
 \begin{verbatim}
@@ -214,7 +214,7 @@ N & M
 \paragraph{Important : analyse expérimentale}
 Ces mesures expérimentales sont-elles en accord avec les coûts analysés théoriquement (justifier) ? 
 Quel algorithme se comporte le mieux avec Valgrind et les paramètres proposés, pourquoi ? \\
-Les mesures expérimentales correspondent (à peu près) à notre analyse théorique . Le programme itératif fait moins de cache miss (malheureusement) que le cache
+\\Les mesures expérimentales correspondent (à peu près) à notre analyse théorique . Le programme itératif fait moins de cache miss (malheureusement) que le cache
 aware qui à son tour fait moins de cache miss que le cache oblivious .. \\
 Les ordres de grandeurs sont à peu près correctes pour le programme itératif . \\  
 
@@ -315,7 +315,7 @@ N & M
 \paragraph{Important : Analyse expérimentale}
 Ces mesures expérimentales sont-elles en accord avec les coûts analysés théoriquement ? (justifier)
 Quel algorithme se comporte le mieux avec Valgrind et les paramètres proposés, pourquoi ?\\
-Vu qu'il y a plus d'opérations , la consommation d'énérgie est plus élevée pour le cache oblivious > cache aware > itératif et on déduit de même pour le temps 
+\\ Vu qu'il y a plus d'opérations , la consommation d'énérgie est plus élevée pour le cache oblivious > cache aware > itératif et on déduit de même pour le temps 
 d'éxécution des algorithmes. \\ 
 Notre analyse théorique est donc en accord avec l'expérience .\\ 
 
