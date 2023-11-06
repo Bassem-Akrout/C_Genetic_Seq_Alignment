@@ -1,14 +1,18 @@
 # Programme de vérification des sorties du programme
-A_TESTER= ../bin/distanceEdition 
+A_TESTER= ../bin/distanceEdition
+A_TESTER_TEMPS_ENERGIE= ../bin/distanceEdition-perf
 DIRTEST= .
-DIRBENCH=/matieres/4MMAOD6/TP-AOD-ADN-Benchmark
+DIRBENCH= /matieres/4MMAOD6/TP-AOD-ADN-Benchmark
 
 all: .test1.expected .test2.expected .test3.expected .test4.expected .test5.expected 
 
-all-valgrind: valgrind4perf1000.output valgrind4perf2000.output valgrind4perf10000.output
+all-valgrind: valgrind4perf1000.output valgrind4perf2000.output valgrind4perf10000.output valgrind4perf2000_1000.output valgrind4perf4000_1000.output valgrind4perf4000.output valgrind4perf6000.output valgrind4perf8000.output 
 
-clean: 
+perf-test: test62_10000.output test62_20000.output test62_30000.output test62_40000.output
 
+clean: rm -f $(OUTPUT_FILES)
+
+.PHONY: all clean
 
 #######################################
 ### Correction test 
@@ -64,6 +68,8 @@ clean:
 #######################################
 ### Experimentation with valgrind
 
+ 	### Basic Tests  
+
 valgrind4perf1000.output:
 	@echo "Test 4 perf : performance test (extracts from SARS-Cov2 sequences), size= 1000 Bytes"
 	time valgrind --tool=cachegrind --D1=4096,4,64	\
@@ -85,7 +91,73 @@ valgrind4perf10000.output:
 	cat valgrind4perf10000.output
 	@echo "*******************************"
 
+	### Report Tests
+
+valgrind4perf2000_1000.output:
+	@echo "Test 4 : performance test (extracts from SARS-Cov2 sequences), N=2000 M=1000"
+	time valgrind --tool=cachegrind --D1=4096,4,64	\
+		$(A_TESTER) $(DIRTEST)/ba52_recent_omicron.fasta 153 2000 $(DIRTEST)/wuhan_hu_1.fasta 116 1000  2> valgrind4perf2000_1000.output
+	cat valgrind4perf2000_1000.output
+	@echo "*******************************"
+
+valgrind4perf4000_1000.output:
+	@echo "Test 4 : performance test (extracts from SARS-Cov2 sequences), N=4000 M=1000"
+	time valgrind --tool=cachegrind --D1=4096,4,64	\
+		$(A_TESTER) $(DIRTEST)/ba52_recent_omicron.fasta 153 4000 $(DIRTEST)/wuhan_hu_1.fasta 116 1000  2> valgrind4perf4000_1000.output
+	cat valgrind4perf4000_1000.output
+	@echo "*******************************"
+
+valgrind4perf4000.output:
+	@echo "Test 4 : performance test (extracts from SARS-Cov2 sequences), size= 4000 Bytes"
+	time valgrind --tool=cachegrind --D1=4096,4,64	\
+		$(A_TESTER) $(DIRTEST)/ba52_recent_omicron.fasta 153 4000 $(DIRTEST)/wuhan_hu_1.fasta 116 4000  2> valgrind4perf4000.output
+	cat valgrind4perf4000.output
+	@echo "*******************************"
+
+valgrind4perf6000.output:
+	@echo "Test 4 : performance test (extracts from SARS-Cov2 sequences), size= 6000 Bytes"
+	time valgrind --tool=cachegrind --D1=4096,4,64	\
+		$(A_TESTER) $(DIRTEST)/ba52_recent_omicron.fasta 153 6000 $(DIRTEST)/wuhan_hu_1.fasta 116 6000  2> valgrind4perf6000.output
+	cat valgrind4perf6000.output
+	@echo "*******************************"
+
+valgrind4perf8000.output:
+	@echo "Test 4 : performance test (extracts from SARS-Cov2 sequences), size= 8000 Bytes"
+	time valgrind --tool=cachegrind --D1=4096,4,64	\
+		$(A_TESTER) $(DIRTEST)/ba52_recent_omicron.fasta 153 6000 $(DIRTEST)/wuhan_hu_1.fasta 116 8000  2> valgrind4perf8000.output
+	cat valgrind4perf8000.output
+	@echo "*******************************"
+
+
 #######################################
-### Experimentation with perf
+### Experimentation with perf question 6.2
+
+test62_10000.output: 
+	@echo "Test 62 , size = 10000 Bytes" 
+	$(A_TESTER_TEMPS_ENERGIE) $(DIRBENCH)/GCA_024498555.1_ASM2449855v1_genomic.fna 77328790 10000 $(DIRBENCH)/GCF_000001735.4_TAIR10.1_genomic.fna 30808129 10000 > test62_10000.output
+	cat test62_10000.output 
+	@echo "*******************************"
+
+test62_20000.output:
+	@echo "Test 62 , size = 20000 Bytes" 
+	$(A_TESTER_TEMPS_ENERGIE) $(DIRBENCH)/GCA_024498555.1_ASM2449855v1_genomic.fna 77328790 20000 $(DIRBENCH)/GCF_000001735.4_TAIR10.1_genomic.fna 30808129 20000 > test62_20000.output
+	cat test62_20000.output 
+	@echo "*******************************"
+
+test62_30000.output:
+	@echo "Test 62 , size = 30000 Bytes" 
+	$(A_TESTER_TEMPS_ENERGIE) $(DIRBENCH)/GCA_024498555.1_ASM2449855v1_genomic.fna 77328790 30000 $(DIRBENCH)/GCF_000001735.4_TAIR10.1_genomic.fna 30808129 30000  > test62_30000.output
+	cat test62_30000.output 
+	@echo "*******************************"
+
+test62_40000.output:
+	@echo "Test 62 , size = 40000 Bytes" 
+	$(A_TESTER_TEMPS_ENERGIE) $(DIRBENCH)/GCA_024498555.1_ASM2449855v1_genomic.fna 77328790 40000 $(DIRBENCH)/GCF_000001735.4_TAIR10.1_genomic.fna 30808129 40000 > test62_40000.output
+	cat test62_40000.output 
+	@echo "*******************************"
+
+
+
+
 
 
