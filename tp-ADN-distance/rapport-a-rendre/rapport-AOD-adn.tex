@@ -23,36 +23,38 @@
 \thispagestyle{empty}
 
 \noindent\centerline{\bf\large Questionnaire TP AOD 2023-2024 à compléter et rendre sur Teide}
-Binôme (NOM\textsubscript{1} Prénom\textsubscript{1} -- NOM\textsubscript{2} Prénom\textsubscript{2}): \dotfill
+Binôme (Akrout\textsubscript{1} Bassem\textsubscript{1} -- Khalfallah\textsubscript{2} Firas\textsubscript{2}): \dotfill
 
 \section{Préambule (1 point)}
 Le programme récursif avec mémorisation fourni alloue une mémoire de taille $N \cdot M$. Il génère une erreur d'exécution sur le test 5 (ci-dessous). Pourquoi ?
-Réponse: À COMPLÉTER
+Réponse: Le programme atteint la profondeur maximale de récursion (max recursion depth), entraînant un débordement de pile (stack overflow). Cela se produit lorsque la récursion s'empile trop profondément, dépassant les limites de la pile de mémoire du système.
 \begin{verbatim}
 distanceEdition-recmemo GCA_024498555.1_ASM2449855v1_genomic.fna 77328790 20236404 \
                         GCF_000001735.4_TAIR10.1_genomic.fna 30808129 19944517
 \end{verbatim}
 
 %%%%%%%%%%%%%%%%%%%
-{\noindent\bf{Important.} Dans toute la suite, on demande des programmes qui allouent un espace mémoire $O(N+M)$.
+{\noindent\bf{Important.} Dans toute la suite, on demande des programmes qui allouent un espace mémoire $O(N+M)$.}
 
 \section{Programme itératif en espace mémoire $O(N+M)$ (5 points)}
 {\em Expliquer très brièvement (2 à 5 lignes max) le principe de votre code, la mémoire utilisée, le sens de parcours des tableaux.}
 \vspace*{1.0cm}
-
+Une file (deque) de taille O(N+1) est créée pour stocker temporairement les valeurs calculées pendant l'algorithme.
+Le code remplit la dernière ligne de la matrice de coût (Ø) avec les valeurs appropriées, commençant par l'indice le plus grand et se déplaçant vers l'indice le plus petit.
+Le code remplit la matrice ligne par ligne en utilisant la file deque pour stocker temporairement les valeurs nécessaires, en supprimant les valeurs dont on n'a plus besoin au fur et à mesure, tout en prenant soin de gérer les cas particuliers.
 Analyse du coût théorique de ce programme en fonction de $N$ et $M$ en notation $\Theta(...)$
 \begin{enumerate}
-  \item Place mémoire allouée (ne pas compter les 2 séquences $X$ et $Y$ en mémoire via {\tt mmap}) :
-  \item Travail (nombre d'opérations) :
-  \item Nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$):
-  \item Nombre de défauts de cache si $Z \ll \min(N,M)$ :
+  \item Place mémoire allouée (ne pas compter les 2 séquences $X$ et $Y$ en mémoire via {\tt mmap}) :$\Theta( (N + 1) x sizeof(queueNode))$
+  \item Travail (nombre d'opérations) :$\Theta(M * N * f)$, où f représente le coût des opérations internes dans chaque itération de la troisième boucle.(pushBack, popFront, isBase, ManageBaseError)
+  \item Nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\frac{3 \times (N + 1)}{L} +\frac{N + M}{L}$ = $\frac{(3 \times N) + M}{L}$
+  \item Nombre de défauts de cache si $Z \ll \min(N,M)$ : $\frac{3 \times N M}{L} +\frac{N + M}{L}$ 
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%
 \section{Programme cache-aware (3 points)}
 {\em Expliquer très brièvement (2 à 5 lignes max) le principe de votre code, la mémoire utilisée, le sens de parcours des tableaux.}
 \vspace*{1.0cm}
-
+Une file (queueBlock) de taille O(N+1)
 Analyse du coût théorique de ce programme en fonction de $N$ et $M$ en notation $\Theta(...)$
 \begin{enumerate}
   \item Place mémoire (ne pas compter les 2 séquences initiales $X$ et $Y$ en mémoire via {\tt mmap}) :
