@@ -101,67 +101,99 @@ Les paramètres du cache LL de second niveau sont : À PRÉCISER.
  \multicolumn{2}{|c||}{ } 
 & \multicolumn{3}{c||}{récursif mémorisation}
 & \multicolumn{3}{c||}{itératif}
-& \multicolumn{3}{c||}{cache-aware}
-& \multicolumn{3}{c||}{cache-oblivious}
 \\ \hline
 N & M 
 & \#Irefs & \#Drefs & \#D1miss % récursif mémorisation
 & \#Irefs & \#Drefs & \#D1miss % itératif
+
+\\ \hline
+\hline
+1000 & 1000 
+& 217,203,381  & 122,122,977  & 4,926,135  % récursif mémorisation
+& 284,358,531 & 155,331,347 & 578,335  % itératif
+
+\\ \hline
+2000 & 1000 
+& 433,380,775  & 243,402,209 & 11,023,544  % récursif mémorisation
+& 567,323,621 & 309,674,249 & 1,161,412  % itératif
+
+\\ \hline
+4000 & 1000 
+& 867,152,873 & 487,366,465  & 23,223,565   % récursif mémorisation
+& 1,134,655,043 & 619,761,667  & 2,341,695  % itératif
+
+\\ \hline
+2000 & 2000 
+& 867,144,471  & 487,889,160  & 19,897,963   % récursif mémorisation
+& 1,135,525,159 & 620,589,183 & 2,277,473  % itératif
+
+\\ \hline
+4000 & 4000 
+& 3,465,867,184 & 1,950,549,355 & 80,000,793   % récursif mémorisation
+& 4,538,899,295 & 2,481,068,095 & 9,052,182  % itératif
+
+\\ \hline
+6000 & 6000 
+& 7,796,327,646 & 4,387,985,166 & 180,336,505  % récursif mémorisation
+& 10,210,328,397 & 5,581,498,353 & 20,340,277  % itératif
+
+\\ \hline
+8000 & 8000 
+& 10,376,405,159 & 5,832,061,863 & 253,320,528  % récursif mémorisation
+& 13,594,369,368 & 7,423,143,738  & 27,256,873  % itératif
+
+\\ \hline
+\hline
+\end{tabular}
+}
+
+\begin{tabular}{|r|r||r|r|r||r|r|r||r|r|r||r|r|r||}
+  \hline
+   \multicolumn{2}{|c||}{ }
+   & \multicolumn{3}{c||}{cache-aware}
+& \multicolumn{3}{c||}{cache-oblivious}
+\\ \hline
+N & M 
+
 & \#Irefs & \#Drefs & \#D1miss % cache-aware
 & \#Irefs & \#Drefs & \#D1miss % cache-oblivious
 \\ \hline
 \hline
 1000 & 1000 
-&  &  &   % récursif mémorisation
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
-\\ \hline
-1000 & 1000 
-&  &  &   % récursif mémorisation
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
+& 369,905,217 & 197,863,313 & 865,243  % cache-aware
+& 618,060,328 & 354,059,807 & 6,569,751  % cache-oblivious
 \\ \hline
 2000 & 1000 
-&  &  &   % récursif mémorisation
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
+
+& 738,517,447 & 394,781,687 & 1,720,062  % cache-aware
+& 1,234,428,836 & 706,917,103  & 12,822,265   % cache-oblivious
 \\ \hline
 4000 & 1000 
-&  &  &   % récursif mémorisation
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
+& 1,477,150,263 & 790,022,341  & 3,412,020   % cache-aware
+& 2,468,581,134 & 1,414,044,384 & 26,333,648   % cache-oblivious
 \\ \hline
 2000 & 2000 
-&  &  &   % récursif mémorisation
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
+& 1,477,167,050 & 790,473,989 & 3,353,336   % cache-aware
+& 2,469,037,626 & 1,414,784,830 & 26,531,346  % cache-oblivious
 \\ \hline
 4000 & 4000 
-&  &  &   % récursif mémorisation
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
+
+& 5,904,392,298 & 3,160,125,603  & 13,929,861 % cache-aware
+&  9,870,498,780 & 5,656,506,344 & 110,123,907  % cache-oblivious
 \\ \hline
 6000 & 6000 
-&  &  &   % récursif mémorisation
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
+
+& 13,281,865,938 &  7,109,004,529 & 31,174,679  % cache-aware
+& 22,078,328,952 & 12,704,659,878  & 233,885,516  % cache-oblivious
 \\ \hline
 8000 & 8000 
-&  &  &   % récursif mémorisation
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
+
+& 17,689,915,509 & 9,459,885,099 & 41,625,717  % cache-aware
+& 29,586,621,624 & 16,964,557,020 & 309,182,810  % cache-oblivious
 \\ \hline
 \hline
 \end{tabular}
-}
+
 
 \paragraph{Important : analyse expérimentale}
 Ces mesures expérimentales sont-elles en accord avec les coûts analysés théoriquement (justifier) ? 
@@ -202,38 +234,69 @@ de confiance [min, moyenne, max].
  \multicolumn{2}{|c||}{ } 
 & \multicolumn{3}{c||}{itératif}
 & \multicolumn{3}{c||}{cache-aware}
-& \multicolumn{3}{c||}{cache-oblivious}
+
 \\ \hline
 N & M 
-& temps   & temps & énergie       % itératif
-& temps   & temps & énergie       % cache-aware
-& temps   & temps & énergie       % cache-oblivious
+& temps   & temps & énergie(kWh)      % itératif
+& temps   & temps & énergie(kWh)      % cache-aware
+
 \\
 & 
 & CPU     & écoulé&               % itératif
 & CPU     & écoulé&               % cache-aware
+
+\\ \hline
+\hline
+10000 & 10000 
+& 2.84833 & 2.85269  & 1.96746e-05  % itératif
+&  &  &   % cache-aware
+
+\\ \hline
+20000 & 20000 
+& 11.3283 & 11.3283 & 8.25237e-05  % itératif
+&  &  &   % cache-aware
+
+\\ \hline
+30000 & 30000 
+& 25.3101 & 25.3101 & 0.0001368 % itératif
+&  &  &   % cache-aware
+\\ \hline
+40000 & 40000 
+& 44.6468  & 44.6468  & 0.0002528  % itératif
+&  &  &   % cache-aware
+\\ \hline
+\hline
+\end{tabular}
+
+\begin{tabular}{|r|r||r|r|r||r|r|r||r|r|r||}
+  \hline
+   \multicolumn{2}{|c||}{ } 
+   & \multicolumn{3}{c||}{cache-oblivious}
+   \\ \hline
+N & M 
+
+& temps   & temps & énergie(kWh)       % cache-oblivious
+\\
+& 
+
 & CPU     & écoulé&               % cache-oblivious
 \\ \hline
 \hline
 10000 & 10000 
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
+
+& 8.88829  & 8.88829  & 5.28187e-05  % cache-oblivious
 \\ \hline
 20000 & 20000 
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
+
+& 35.4604 & 35.4604 & 0.0001909  % cache-oblivious
 \\ \hline
 30000 & 30000 
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
+
+& 80.2692 & 80.2692 & 0.0003930  % cache-oblivious
 \\ \hline
 40000 & 40000 
-&  &  &   % itératif
-&  &  &   % cache-aware
-&  &  &   % cache-oblivious
+
+& 141.994 & 141.994 & 0.0007156  % cache-oblivious
 \\ \hline
 \hline
 \end{tabular}
