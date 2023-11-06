@@ -116,4 +116,4 @@ void pushBackBlock(queueBlock *deque, queue value) ;
 queue popFrontBlock(queueBlock *deque) ;
 
 long iteratif_cache_aware(char* A, size_t lengthA, char* B, size_t lengthB) ;
-long rec_cache_oblivious(HashTable* ht,char* A, size_t lengthA, char* B, size_t lengthB) ;
+long rec_cache_oblivious(char* A, size_t lengthA, char* B, size_t lengthB) ;
