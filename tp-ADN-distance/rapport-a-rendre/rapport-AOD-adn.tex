@@ -38,46 +38,54 @@ distanceEdition-recmemo GCA_024498555.1_ASM2449855v1_genomic.fna 77328790 202364
 
 \section{Programme itératif en espace mémoire $O(N+M)$ (5 points)}
 {\em Expliquer très brièvement (2 à 5 lignes max) le principe de votre code, la mémoire utilisée, le sens de parcours des tableaux.}
-\vspace*{1.0cm}
+
 Une file (deque) de taille O(N+1) est créée pour stocker temporairement les valeurs calculées pendant l'algorithme.
 Le code remplit la dernière ligne de la matrice de coût (Ø) avec les valeurs appropriées, commençant par l'indice le plus grand et se déplaçant vers l'indice le plus petit.
 Le code remplit la matrice ligne par ligne en utilisant la file deque pour stocker temporairement les valeurs nécessaires, en supprimant les valeurs dont on n'a plus besoin au fur et à mesure, tout en prenant soin de gérer les cas particuliers.
 Analyse du coût théorique de ce programme en fonction de $N$ et $M$ en notation $\Theta(...)$
 \begin{enumerate}
-  \item Place mémoire allouée (ne pas compter les 2 séquences $X$ et $Y$ en mémoire via {\tt mmap}) :$\Theta( (N + 1) x sizeof(queueNode))$
+  \item Place mémoire allouée (ne pas compter les 2 séquences $X$ et $Y$ en mémoire via {\tt mmap}) :$\Theta( 3 \times(M + 1) x sizeof(queueNode))$ ( la multiplication par 3 représente le fait que queueNode contient trois attributs dans la structure
+  value / prev / next ) \\
   \item Travail (nombre d'opérations) :$\Theta(M * N * f)$, où f représente le coût des opérations internes dans chaque itération de la troisième boucle.(pushBack, popFront, isBase, ManageBaseError)
-  \item Nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\frac{3 \times (N + 1)}{L} +\frac{N + M}{L}$ = $\frac{(3 \times N) + M}{L}$
+  \item Nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\frac{3 \times (M + 1)}{L} +\frac{N + M}{L}$ = $\frac{(3 \times N) + M}{L}$
   \item Nombre de défauts de cache si $Z \ll \min(N,M)$ : $\frac{3 \times N M}{L} +\frac{N + M}{L}$ 
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%
 \section{Programme cache-aware (3 points)}
 {\em Expliquer très brièvement (2 à 5 lignes max) le principe de votre code, la mémoire utilisée, le sens de parcours des tableaux.}
-\vspace*{1.0cm}
-Une file (queueBlock) de taille O(N+1)
+\\
+Une file (queueBlock) de taille O(N+1) est créée pour stocker temporairement les files "queue" contenant les valeurs calculées par l'algorithme utilisées par la suite
+Le code remplit le bloc en bas à droite puis les blocs en bas en utilisant les fonctions block_down_right et block_down. \\
+le code remplit les lignes des blocs restants ligne par ligne en commençant par la droite en utilisant
+les fonctions block_right et block \\
+
 Analyse du coût théorique de ce programme en fonction de $N$ et $M$ en notation $\Theta(...)$
 \begin{enumerate}
-  \item Place mémoire (ne pas compter les 2 séquences initiales $X$ et $Y$ en mémoire via {\tt mmap}) :
-  \item Travail (nombre d'opérations) :
-  \item Nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$):
-  \item Nombre de défauts de cache si $Z \ll \min(N,M)$ :
+  \item Place mémoire (ne pas compter les 2 séquences initiales $X$ et $Y$ en mémoire via {\tt mmap}) : $\Theta(3 \times(M+1)*sizeof(queueNode))$
+  \item Travail (nombre d'opérations) : $\Theta(M * N * f + M * g )$, où f représente le coût des opérations internes dans chaque itération (pushBack, popFront, isBase, ManageBaseError) et g représente le coût des opérations internes dans chaque itération (pushBackBlock, popFrontBlock) \\
+  \item Nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $\frac{3 \times (M + 1)}{L} +\frac{N + M}{L} + \frac{N* M}{K^2}$ = $\frac{(3 \times N) + M}{L} + \frac{N* M * L}{Z} $ \\
+  \item Nombre de défauts de cache si $Z \ll \min(N,M)$ : $\frac{3 \times N M}{L} +\frac{N + M}{L} + \frac{N* M * L}{Z}$ \\
 \end{enumerate}
 
 %%%%%%%%%%%%%%%%%%%
 \section{Programme cache-oblivious (3 points)}
 {\em Expliquer très brièvement (2 à 5 lignes max) le principe de votre code, la mémoire utilisée, le sens de parcours des tableaux.}
-\vspace*{1.0cm}
-
+Le programme crée un dictionnaire qui contient des paires ((i,j), valeur) qui représentent les valeurs de la matrice de calcul de distance d'édition.\\
+on remplit le dictionnaire récursivement en tachant de supprimer toutes informations dans le dictionnaire inutiles pour la suite du calcul. \\
 Analyse du coût théorique de ce programme en fonction de $N$ et $M$ en notation $\Theta(...)$
 \begin{enumerate}
-  \item Place mémoire (ne pas compter les 2 séquences initiales $X$ et $Y$ en mémoire via {\tt mmap}) :
-  \item Travail (nombre d'opérations) :
-  \item Nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$):
-  \item Nombre de défauts de cache si $Z \ll \min(N,M)$ :
+  \item Place mémoire (ne pas compter les 2 séquences initiales $X$ et $Y$ en mémoire via {\tt mmap}) : $\Theta( 3 \times(M + 1)\times sizeof(HashNode))$
+  \item Travail (nombre d'opérations) : $\Theta(M * N * f)$, où f représente le coût de findInHashTable, addToHashTable et removeFromHashTable.\\ 
+  \item Nombre de défauts de cache obligatoires (sur modèle CO, y compris sur $X$ et $Y$): $ \frac{ (M+1)}{L} $ (En supposant que la distribution des 
+  données dans la hashtable est idéale mais ce n'est pas le cas. Ce qui provoque des défauts de cache en plus. En effet la table de hashage ne permet pas d'utiliser les mêmes zones de mémoire et donc 
+  ne permet pas une localité idéale dans le cache ) \\
+  \item Nombre de défauts de cache si $Z \ll \min(N,M)$ : $ \frac{3 \times (M N)}{L} $
 \end{enumerate}
 
 \section{Réglage du seuil d'arrêt récursif du programme cache-oblivious (1 point)}
-Comment faites-vous sur une machine donnée pour choisir ce seuil d'arrêt ? Quelle valeur avez-vous choisie pour les PC de l'Ensimag ? (2 à 3 lignes)
+Comment faites-vous sur une machine donnée pour choisir ce seuil d'arrêt ? Quelle valeur avez-vous choisie pour les PC de l'Ensimag ? \\
+Puisqu'on utilise un dictionnaire, on suppose que les données sont non-contigües donc on prend $ S = \sqrt(\frac{Z}{L}) $
 
 %%%%%%%%%%%%%%%%%%%
 \section{Expérimentation (7 points)}
@@ -205,7 +213,10 @@ N & M
 
 \paragraph{Important : analyse expérimentale}
 Ces mesures expérimentales sont-elles en accord avec les coûts analysés théoriquement (justifier) ? 
-Quel algorithme se comporte le mieux avec Valgrind et les paramètres proposés, pourquoi ?
+Quel algorithme se comporte le mieux avec Valgrind et les paramètres proposés, pourquoi ? \\
+Les mesures expérimentales correspondent (à peu près) à notre analyse théorique . Le programme itératif fait moins de cache miss (malheureusement) que le cache
+aware qui à son tour fait moins de cache miss que le cache oblivious .. \\
+Les ordres de grandeurs sont à peu près correctes pour le programme itératif . \\  
 
 \subsection{(3 points) Sans Valgrind, par exécution de la commande :}
 {\tt \begin{tabular}{llll}
@@ -303,7 +314,10 @@ N & M
 
 \paragraph{Important : Analyse expérimentale}
 Ces mesures expérimentales sont-elles en accord avec les coûts analysés théoriquement ? (justifier)
-Quel algorithme se comporte le mieux avec Valgrind et les paramètres proposés, pourquoi ?
+Quel algorithme se comporte le mieux avec Valgrind et les paramètres proposés, pourquoi ?\\
+Vu qu'il y a plus d'opérations , la consommation d'énérgie est plus élevée pour le cache oblivious > cache aware > itératif et on déduit de même pour le temps 
+d'éxécution des algorithmes. \\ 
+Notre analyse théorique est donc en accord avec l'expérience .\\ 
 
 \subsection{(1 point) Extrapolation : estimation de la durée et de l'énergie pour la commande :}
 \begin{tabular}{llll}
